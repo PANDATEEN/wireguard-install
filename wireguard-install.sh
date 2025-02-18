@@ -550,6 +550,16 @@ function uninstallWg() {
 	fi
 }
 
+function applyConf(){
+	read -rp "Give me the nic name: " -e -i "wg0" NIC_NAME
+	wg syncconf "${NIC_NAME}" <(wg-quick strip "${NIC_NAME}")
+}
+
+function restartNic(){
+	read -rp "Give me the nic name: " -e -i "wg0" NIC_NAME
+	wg-quick down "${NIC_NAME}" && wg-quick up "${NIC_NAME}"
+}
+
 function manageMenu() {
 	echo "Welcome to WireGuard-install"
 	echo "It looks like WireGuard is already installed."
@@ -559,8 +569,10 @@ function manageMenu() {
 	echo "   3) Revoke existing user"
 	echo "   4) Uninstall WireGuard"
 	echo "   5) Exit"
-	until [[ ${MENU_OPTION} =~ ^[1-5]$ ]]; do
-		read -rp "Select an option [1-5]: " MENU_OPTION
+	echo "   6) apply conf file right now"
+	echo "   7) restart a interface"
+	until [[ ${MENU_OPTION} =~ ^[1-7]$ ]]; do
+		read -rp "Select an option [1-7]: " MENU_OPTION
 	done
 	case "${MENU_OPTION}" in
 	1)
@@ -577,6 +589,12 @@ function manageMenu() {
 		;;
 	5)
 		exit 0
+		;;
+	6)
+		applyConf
+		;;
+	7)
+		restartNic
 		;;
 	esac
 }
